@@ -48,7 +48,7 @@ type userDataSourceImpl struct {
 
 func (d *userDataSourceImpl) FindByID(context context.Context, userID int) (*model.User, error) {
 	var user *model.User
-	err := d.dbInstance.Preload("Department").
+	err := d.dbInstance.WithContext(context).Preload("Department").
 		Preload("Position").
 		Preload("Role").
 		Preload("Permissions").
@@ -64,7 +64,7 @@ func (d *userDataSourceImpl) FindByID(context context.Context, userID int) (*mod
 
 func (d *userDataSourceImpl) FindByRoleID(context context.Context, roleID int) ([]model.User, error) {
 	var users []model.User
-	err := d.dbInstance.Preload("Department").
+	err := d.dbInstance.WithContext(context).Preload("Department").
 		Preload("Position").
 		Preload("Role").
 		Preload("Permissions").
