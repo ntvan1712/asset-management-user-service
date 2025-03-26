@@ -6,6 +6,7 @@ import (
 	"user_service/module/user/data/model"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type userDataSourceImpl struct {
@@ -78,27 +79,12 @@ func (d *userDataSourceImpl) FindByRoleID(context context.Context, roleID int) (
 }
 
 func (d *userDataSourceImpl) InsertIfNotExists(context context.Context, userModel model.User) error {
-	result := d.dbInstance.Exec(`
-        INSERT INTO users (id, name, code, department_id, position_id, email, phone_number, avatar_path, birthday, created_at, role_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT (id) DO NOTHING;
-    `, userModel.ID,
-		userModel.Name,
-		userModel.Code,
-		userModel.DepartmentID,
-		userModel.PositionID,
-		userModel.Email,
-		userModel.PhoneNumber,
-		userModel.AvatarPath,
-		userModel.Birthday,
-		userModel.CreatedAt,
-		userModel.RoleID)
+	result := d.dbInstance.WithContext(context).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		DoNothing: true,                         
+	}).Create(&userModel)
 
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
+	return result.Error
 }
 
 func NewUserDataSource(dbInstance *gorm.DB) UserDataSource {
