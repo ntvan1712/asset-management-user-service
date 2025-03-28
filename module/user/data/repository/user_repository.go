@@ -6,7 +6,9 @@ import (
 )
 
 type UserRepository interface {
-	// InsertIfNotExists(context context.Context, userModel model.User) error
+	InsertIfNotExistsByID(context context.Context, userID int) (*entity.UserEntity, error)
+	UpdateRoleAndPermissions(context context.Context, userID int, roleID int, permissionIDs []int) (*entity.UserEntity, error)
+	FindEmployeesByNameOrCode(context context.Context, query string, page int, limit int) ([]entity.EmployeeDetailEntity, error)
 	FindByID(context context.Context, userID int) (*entity.UserEntity, error)
 	FindByRoleID(context context.Context, roleID int) ([]entity.UserEntity, error)
 	// HasRoleAndPermissionID(context context.Context, userID int, roleID int, permissionID *int) (bool, error)

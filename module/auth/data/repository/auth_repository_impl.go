@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"time"
-	"user_service/common/enums"
 	"user_service/common/error_app"
 	infras "user_service/infras"
 	authDS "user_service/module/auth/data/data_source"
@@ -30,22 +28,7 @@ func (a *authRepository) Login(context context.Context, username string, passwor
 	}
 
 	employee := res.EmployeeDetail
-	departmentId := int(employee.DepartmentId)
-	positionId := int(employee.PositionId)
-	birthDay := employee.Birthday.AsTime()
-	err = a.userDataSource.InsertIfNotExists(context, model.User{
-		ID:           int(employee.Id),
-		Name:         employee.Name,
-		Code:         employee.Code,
-		DepartmentID: &departmentId,
-		PositionID:   &positionId,
-		Email:        employee.Email,
-		PhoneNumber:  employee.PhoneNumber,
-		AvatarPath:   employee.AvatarPath,
-		Birthday:     &birthDay,
-		CreatedAt:    time.Now().UTC(),
-		RoleID:       enums.UserRoleID.Employee,
-	})
+	err = a.userDataSource.InsertIfNotExists(context, model.NewUserFromEmployeeGRpc(res.EmployeeDetail))
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +42,7 @@ func (a *authRepository) Login(context context.Context, username string, passwor
 	}
 
 	return &entity.LoginSuccessResponseEntity{
-		User:        userModel.ToEntity(),
+		User:        *userModel.ToEntity(),
 		AccessToken: res.AccessToken,
 	}, nil
 

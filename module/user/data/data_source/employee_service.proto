@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package employee;
+
+option go_package = "user_service/module/user/data/data_source;datasource";
+
+import "common/proto_share/share_model.proto";
+
+service EmployeeService {
+  rpc FindByID (FindByIDRequest) returns (proto_share.EmployeeRPC);
+  rpc FindByNameOrCode(FindByNameOrCodeRequest) returns (FindByNameOrCodeResponse);
+}
+
+message FindByIDRequest {
+  int32 id = 1;
+}
+
+message FindByNameOrCodeRequest {
+  string query = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message FindByNameOrCodeResponse {
+  repeated proto_share.EmployeeRPC employees = 1;
+}
+
+

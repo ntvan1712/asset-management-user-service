@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"context"
+	"errors"
 	"user_service/common/error_app"
 	"user_service/module/user/data/model"
 
@@ -13,39 +14,79 @@ type userDataSourceImpl struct {
 	dbInstance *gorm.DB
 }
 
-// func (d *userDataSourceImpl) HasRoleAndPermissionID(
-// 	context context.Context,
-// 	userID int,
-// 	roleID int,
-// 	permissionID *int,
-// ) (bool, error) {
-// 	var count *int64
+// UpdateRoleAndPermissions implements UserDataSource.
+func (d *userDataSourceImpl) UpdateRoleAndPermissions(
+	context context.Context,
+	userID int,
+	roleID int,
+	permissionIDs []int,
+) (*model.User, error) {
+	tx := d.dbInstance.WithContext(context).Begin()
 
-// 	query := `
-// 		SELECT COUNT(*)
-// 		FROM users u
-// 		LEFT JOIN user_permissions up ON u.id = up.user_id
-// 		WHERE u.id = ? AND u.role_id = ?
-// 	`
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
-// 	// Thêm điều kiện kiểm tra permission nếu permissionID không phải nil
-// 	if permissionID != nil {
-// 		query += " AND up.permission_id = ?"
-// 		if err := d.dbInstance.Raw(query, userID, roleID, *permissionID).Scan(&count).Error; err != nil {
-// 			return false, err
-// 		}
-// 	} else {
-// 		if err := d.dbInstance.Raw(query, userID, roleID).Scan(&count).Error; err != nil {
-// 			return false, err
-// 		}
-// 	}
-// 	if count == nil {
-// 		return false, error_app.ErrDocumentNotFound
-// 	}
+	var user *model.User
+	if err := tx.First(&user, userID).Error; err != nil {
+		tx.Rollback()
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, error_app.ErrDocumentNotFound
+		}
+		return nil, err
+	}
 
-// 	return *count > 0, nil
-// }
+	if err := tx.Model(user).
+		Where("id = ?", userID).
+		Update("role_id", roleID).Error; err != nil {
 
+		tx.Rollback()
+		return nil, err
+	}
+
+	var permissions []model.Permission
+	if err := tx.Where("id IN ?", permissionIDs).Find(&permissions).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&user).Association("Permissions").Replace(&permissions); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	if err := d.dbInstance.WithContext(context).
+		Preload("Role").
+		Preload("Department").
+		Preload("Position").
+		Preload("Permissions").
+		First(&user, userID).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+
+}
+
+func (d *userDataSourceImpl) IsExistsByID(context context.Context, userID int) (bool, error) {
+	var exists bool
+
+	err := d.dbInstance.WithContext(context).Model(&model.User{}).Select("1").Where("id = ?", userID).Scan(&exists).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, error_app.ErrDocumentNotFound
+		}
+		return false, err
+	}
+
+	return exists, nil
+}
 func (d *userDataSourceImpl) FindByID(context context.Context, userID int) (*model.User, error) {
 	var user *model.User
 	err := d.dbInstance.WithContext(context).Preload("Department").
@@ -54,6 +95,9 @@ func (d *userDataSourceImpl) FindByID(context context.Context, userID int) (*mod
 		Preload("Permissions").
 		First(&user, userID).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, error_app.ErrDocumentNotFound
+		}
 		return nil, err
 	}
 	if user == nil {
@@ -68,8 +112,7 @@ func (d *userDataSourceImpl) FindByRoleID(context context.Context, roleID int) (
 		Preload("Position").
 		Preload("Role").
 		Preload("Permissions").
-		Where("role_id = ?", roleID).
-		Find(&users).Error
+		Find(&users, "role_id = ?", roleID).Error
 
 	if err != nil {
 		return nil, err
@@ -78,10 +121,10 @@ func (d *userDataSourceImpl) FindByRoleID(context context.Context, roleID int) (
 	return users, nil
 }
 
-func (d *userDataSourceImpl) InsertIfNotExists(context context.Context, userModel model.User) error {
+func (d *userDataSourceImpl) InsertIfNotExists(context context.Context, userModel *model.User) error {
 	result := d.dbInstance.WithContext(context).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
-		DoNothing: true,                         
+		DoNothing: true,
 	}).Create(&userModel)
 
 	return result.Error

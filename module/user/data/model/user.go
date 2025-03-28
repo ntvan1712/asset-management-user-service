@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 	"user_service/app_config"
+	"user_service/common/enums"
+	"user_service/common/proto_share"
 	"user_service/infras"
 	"user_service/module/user/domain/entity"
 )
@@ -27,8 +29,11 @@ type User struct {
 	Permissions []Permission `gorm:"many2many:user_permissions" json:"permissions,omitempty"`
 }
 
-func (model *User) ToEntity() entity.UserEntity {
-	return entity.UserEntity{
+func (model *User) ToEntity() *entity.UserEntity {
+	if model == nil {
+		return nil
+	}
+	userEntity := &entity.UserEntity{
 		ID:          model.ID,
 		Name:        model.Name,
 		Code:        model.Code,
@@ -36,25 +41,49 @@ func (model *User) ToEntity() entity.UserEntity {
 		PhoneNumber: model.PhoneNumber,
 		AvatarUrl:   app_config.GetAppConfig().MinioConfig.GetEmployeeDataUrl(model.AvatarPath),
 		Birthday:    model.Birthday,
-		// DepartmentCode: &model.Department.Code,
-		DepartmentName: &model.Department.DisplayName,
-		// PositionCode:   &model.Position.Code,
-		PositionName: &model.Position.DisplayName,
-		RoleCode:     model.Role.Code,
-		RoleName:     model.Role.DisplayName,
-		RoleID:       model.RoleID,
-		Permissions:  PermissionModelsToEntities(model.Permissions),
+		RoleID:      model.RoleID,
+		Permissions: PermissionModelsToEntities(model.Permissions),
 	}
+	if model.Department != nil {
+		userEntity.DepartmentName = &model.Department.Name
+	}
+	if model.Position != nil {
+		userEntity.PositionName = &model.Position.Name
+	}
+	if model.Role != nil {
+		userEntity.RoleCode = model.Role.Code
+		userEntity.RoleName = model.Role.Name
+	}
+	return userEntity
 }
 
 func UserModelsToEntities(users []User) []entity.UserEntity {
 	var userEntities []entity.UserEntity
 
 	for _, userModel := range users {
-		userEntities = append(userEntities, userModel.ToEntity())
+		userEntities = append(userEntities, *userModel.ToEntity())
 	}
 
 	return userEntities
+}
+
+func NewUserFromEmployeeGRpc(employee *proto_share.EmployeeRPC) *User {
+	departmentId := int(employee.DepartmentId)
+	positionId := int(employee.PositionId)
+	birthDay := employee.Birthday.AsTime()
+	return &User{
+		ID:           int(employee.Id),
+		Name:         employee.Name,
+		Code:         employee.Code,
+		DepartmentID: &departmentId,
+		PositionID:   &positionId,
+		Email:        employee.Email,
+		PhoneNumber:  employee.PhoneNumber,
+		AvatarPath:   employee.AvatarPath,
+		Birthday:     &birthDay,
+		CreatedAt:    time.Now().UTC(),
+		RoleID:       enums.UserRoleID.Employee,
+	}
 }
 
 func (User) TableName() string {

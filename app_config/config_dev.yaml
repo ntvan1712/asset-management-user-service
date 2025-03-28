@@ -15,11 +15,7 @@ logger:
   SugarType: true
 
 postgres:
-  ConnectionString: "host=127.0.0.1 user=postgres password=kaido1712 dbname=asset_management port=5432 sslmode=disable TimeZone=Asia/Ho_Chi_Minh"
-
-mongodb:
-  ConnectionString: "mongodb+srv://vannguyenthe1712:kaido1712@cluster0.ofixi.mongodb.net/"
-  DbName: "faceswap"
+  ConnectionString: "host=127.0.0.1 user=kaido1712 password=kaido1712 dbname=asset_management port=5433 sslmode=disable TimeZone=Asia/Ho_Chi_Minh"
 
 rabbitmq:
   URI: "amqps://asset_server:kaido1712@127.0.0.1:5672/asset_management"

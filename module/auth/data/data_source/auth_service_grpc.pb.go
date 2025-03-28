@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.30.0
-// source: module/auth/domain/service/auth_service.proto
+// source: module/auth/data/data_source/auth_service.proto
 
-package service
+package datasource
 
 import (
 	context "context"
@@ -155,5 +155,5 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "module/auth/domain/service/auth_service.proto",
+	Metadata: "module/auth/data/data_source/auth_service.proto",
 }

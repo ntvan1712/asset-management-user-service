@@ -7,8 +7,8 @@ type userRoleIDEnum struct {
 }
 
 var UserRoleID = userRoleIDEnum{
-	Admin:    4,
-	Manager:  5,
-	Employee: 6,
+	Admin:    1,
+	Manager:  2,
+	Employee: 3,
 }
 

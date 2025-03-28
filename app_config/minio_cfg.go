@@ -15,7 +15,7 @@ type MinioConfig struct {
 
 func (m *MinioConfig) GetEmployeeDataUrl(path string) string {
 	if strings.HasPrefix(path, "/") {
-		return fmt.Sprintf("%s%s", m.Endpoint, path)
+		return fmt.Sprintf("%s/employee%s", m.Endpoint, path)
 	}
-	return fmt.Sprintf("%s/%s", m.Endpoint, path)
+	return fmt.Sprintf("%s/employee/%s", m.Endpoint, path)
 }

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package proto_share;
+
+option go_package = "user_service/common/proto_share;proto_share";
+
+import "google/protobuf/timestamp.proto";
+
+message EmployeeRPC {
+    int32 id = 1;
+    string name = 2;
+    string code = 3;
+    string email = 4;
+    string phone_number = 5;
+    string avatar_path = 6;
+    google.protobuf.Timestamp hire_date = 7;
+    google.protobuf.Timestamp birthday = 8;
+    google.protobuf.Timestamp created_at = 9;
+    int32 department_id = 10;
+    int32 position_id = 11;
+    string department_name = 12;
+    string department_code = 13;
+    string position_name = 14;
+    string position_code = 15;
+  }
+
+  // server
+  // protoc --proto_path=. --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. ./module/auth/domain/service/auth_service.proto ./module/employee/domain/service/employee_service.proto ./common/proto_share/share_model.proto
+  // client
+  //  protoc --proto_path=. --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. ./module/auth/data/data_source/auth_service.proto ./module/user/data/data_source/employee_service.proto ./common/proto_share/share_model.proto

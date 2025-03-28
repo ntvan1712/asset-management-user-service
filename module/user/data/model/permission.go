@@ -6,9 +6,10 @@ import (
 )
 
 type Permission struct {
-	ID          int    `gorm:"primaryKey;autoIncrement" json:"id"`
-	Code        string `gorm:"size:50" json:"code"`
-	DisplayName string `gorm:"size:100" json:"display_name"`
+	ID   int    `gorm:"primaryKey;autoIncrement" json:"id"`
+	Code string `gorm:"size:50" json:"code"`
+	Name string `gorm:"size:100" json:"name"`
+	Description string `gorm:"type:text" json:"description"`
 }
 
 func (Permission) TableName() string {
@@ -17,9 +18,9 @@ func (Permission) TableName() string {
 
 func (p *Permission) ToEntity() entity.PermissionEntity {
 	return entity.PermissionEntity{
-		Code:        p.Code,
-		DisplayName: p.DisplayName,
-		ID:          p.ID,
+		Code: p.Code,
+		Name: p.Name,
+		ID:   p.ID,
 	}
 }
 
