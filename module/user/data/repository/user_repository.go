@@ -11,6 +11,6 @@ type UserRepository interface {
 	FindEmployeesByNameOrCode(context context.Context, query string, page int, limit int) ([]entity.EmployeeDetailEntity, error)
 	FindByID(context context.Context, userID int) (*entity.UserEntity, error)
 	FindByRoleID(context context.Context, roleID int) ([]entity.UserEntity, error)
-	// HasRoleAndPermissionID(context context.Context, userID int, roleID int, permissionID *int) (bool, error)
-
+	FindAllPermissions(context context.Context) ([]entity.PermissionEntity, error)
+	FindActivitiesByUserID(context context.Context, userID int, page int, limit int) ([]entity.UserActivityEntity, error)
 }

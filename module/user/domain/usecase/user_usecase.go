@@ -14,4 +14,8 @@ type UserUsecase interface {
 	UpdateManagerPermissions(context context.Context, managerID int, permissionIDs []int) (*entity.UserEntity, error)
 
 	SearchEmployeesByNameOrCode(context context.Context, query string, page int, limit int) ([]entity.EmployeeDetailEntity, error)
+
+	GetAllPermissions(context context.Context) ([]entity.PermissionEntity, error)
+
+	GetManagerActivities(context context.Context, userID int, page int, limit int) ([]entity.UserActivityEntity, error)
 }

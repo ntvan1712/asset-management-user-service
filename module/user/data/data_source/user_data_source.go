@@ -11,5 +11,7 @@ type UserDataSource interface {
 	FindByID(context context.Context, userID int) (*model.User, error)
 	FindByRoleID(context context.Context, roleID int) ([]model.User, error)
 	IsExistsByID(context context.Context, userID int) (bool, error)
-	// HasRoleAndPermissionID(context context.Context, userID int, roleID int, permissionID *int) (bool, error)
+	FindAllPermissions(context context.Context) ([]model.Permission, error)
+
+	FindActivitiesByUserID(context context.Context, userID int, page int, limit int) ([]model.UserActivity, error)
 }

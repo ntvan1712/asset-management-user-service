@@ -14,6 +14,24 @@ type userRepositoryImpl struct {
 	employeeService datasource.EmployeeServiceClient
 }
 
+// FindActivitiesByUserID implements UserRepository.
+func (d *userRepositoryImpl) FindActivitiesByUserID(context context.Context, userID int, page int, limit int) ([]entity.UserActivityEntity, error) {
+	activityModels, err := d.userDS.FindActivitiesByUserID(context, userID, page, limit)
+	if err != nil {
+		return nil, err
+	}
+	return model.UserActivityModelsToEntities(activityModels), nil
+}
+
+// FindAllPermissions implements UserRepository.
+func (d *userRepositoryImpl) FindAllPermissions(context context.Context) ([]entity.PermissionEntity, error) {
+	permModels, err := d.userDS.FindAllPermissions(context)
+	if err != nil {
+		return nil, err
+	}
+	return model.PermissionModelsToEntities(permModels), nil
+}
+
 // FindByNameOrCode implements UserRepository.
 func (d *userRepositoryImpl) FindEmployeesByNameOrCode(
 	context context.Context,

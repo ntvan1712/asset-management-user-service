@@ -21,7 +21,10 @@ func Setup(app *fiber.App) {
 	managerRoute.Get("/", userController.GetAllManagersHandler)
 	managerRoute.Post("/", userController.AddManagerHandler)
 	managerRoute.Patch("/:manager_id/permissions", userController.UpdateManagerPermissionsHandler)
+	managerRoute.Get("/:manager_id/activities", userController.GetManagerActivitiesHandler)
 	managerRoute.Delete("/:manager_id", userController.DeleteManagerHandler)
+
+	managerRoute.Get("/permissions", userController.GetAllPermissionsHandler)
 
 	employeeRoute := app.Group("/api/employees")
 	employeeRoute.Use(middleware.GetAuthMiddleware().AdminAuthorityMiddleware)

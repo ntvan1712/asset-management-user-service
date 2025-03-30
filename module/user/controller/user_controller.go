@@ -37,8 +37,13 @@ func (ac *UserController) SearchEmployeesByNameOrCodeHandler(c *fiber.Ctx) error
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(error_app.InternalServerErrorResponse(err.Error()))
 	}
-	if len(response) == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(error_app.NotFoundErrorResponse("Không có nhân sự nào trùng khớp"))
+	return c.JSON(response)
+}
+
+func (ac *UserController) GetAllPermissionsHandler(c *fiber.Ctx) error {
+	response, err := ac.userUsecase.GetAllPermissions(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(error_app.InternalServerErrorResponse(err.Error()))
 	}
 	return c.JSON(response)
 }
@@ -48,9 +53,6 @@ func (ac *UserController) GetAllManagersHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(error_app.InternalServerErrorResponse(err.Error()))
 	}
-	// if len(response) == 0 {
-	// 	return c.Status(fiber.StatusNotFound).JSON(error_app.NotFoundErrorResponse("Không có nhân viên quản lý nào"))
-	// }
 	return c.JSON(response)
 }
 
@@ -73,6 +75,35 @@ func (ac *UserController) DeleteManagerHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(error_app.InternalServerErrorResponse(err.Error()))
 	}
 	return c.SendString("Delete success")
+}
+
+func (ac *UserController) GetManagerActivitiesHandler(c *fiber.Ctx) error {
+	managerID, err := c.ParamsInt("manager_id")
+	if err != nil {
+		logger.Error("UserController", "GetManagerActivitiesHandler", err)
+		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse("Manager Id phải là số nguyên"))
+	}
+
+	paginateQuery := new(entity.PaginateQueryEntity)
+	if err := c.QueryParser(paginateQuery); err != nil {
+		logger.Error("UserController", "GetManagerActivitiesHandler QueryParserErr", err)
+		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse(err.Error()))
+	}
+
+	if err := validator_app.ValidateStruct(paginateQuery); err != nil {
+		logger.Error("UserController", "GetManagerActivitiesHandler ValidateStructErr", err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
+	}
+	response, err := ac.userUsecase.GetManagerActivities(
+		c.Context(),
+		managerID,
+		paginateQuery.Page,
+		paginateQuery.Limit,
+	)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(error_app.InternalServerErrorResponse(err.Error()))
+	}
+	return c.JSON(response)
 }
 
 func (ac *UserController) UpdateManagerPermissionsHandler(c *fiber.Ctx) error {

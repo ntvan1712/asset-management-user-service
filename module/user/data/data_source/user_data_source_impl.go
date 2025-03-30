@@ -14,6 +14,41 @@ type userDataSourceImpl struct {
 	dbInstance *gorm.DB
 }
 
+// FindActivitiesByUserID implements UserDataSource.
+func (d *userDataSourceImpl) FindActivitiesByUserID(
+	context context.Context,
+	userID int,
+	page int,
+	limit int,
+) ([]model.UserActivity, error) {
+	var activities []model.UserActivity
+
+	offset := (page - 1) * limit
+
+	result := d.dbInstance.Where("user_id = ?", userID).
+		Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&activities)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return activities, nil
+}
+
+// FindAllPermissions implements UserDataSource.
+func (d *userDataSourceImpl) FindAllPermissions(context context.Context) ([]model.Permission, error) {
+	var permissions []model.Permission
+	err := d.dbInstance.WithContext(context).Find(&permissions).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return permissions, nil
+}
+
 // UpdateRoleAndPermissions implements UserDataSource.
 func (d *userDataSourceImpl) UpdateRoleAndPermissions(
 	context context.Context,

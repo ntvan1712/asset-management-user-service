@@ -12,6 +12,16 @@ type userUsecaseImpl struct {
 	userRepo repository.UserRepository
 }
 
+// GetManagerActivities implements UserUsecase.
+func (d *userUsecaseImpl) GetManagerActivities(context context.Context, userID int, page int, limit int) ([]entity.UserActivityEntity, error) {
+	return d.userRepo.FindActivitiesByUserID(context, userID, page, limit)
+}
+
+// GetAllPermissions implements UserUsecase.
+func (d *userUsecaseImpl) GetAllPermissions(context context.Context) ([]entity.PermissionEntity, error) {
+	return d.userRepo.FindAllPermissions(context)
+}
+
 // DeleteManager implements UserUsecase.
 func (d *userUsecaseImpl) DeleteManager(context context.Context, managerId int) error {
 	if _, err := d.userRepo.UpdateRoleAndPermissions(context, managerId, enums.UserRoleID.Employee, []int{}); err != nil {
