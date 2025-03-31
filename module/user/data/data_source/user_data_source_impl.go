@@ -150,6 +150,9 @@ func (d *userDataSourceImpl) FindByRoleID(context context.Context, roleID int) (
 		Find(&users, "role_id = ?", roleID).Error
 
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, error_app.ErrDocumentNotFound
+		}
 		return nil, err
 	}
 
@@ -161,6 +164,10 @@ func (d *userDataSourceImpl) InsertIfNotExists(context context.Context, userMode
 		Columns:   []clause.Column{{Name: "id"}},
 		DoNothing: true,
 	}).Create(&userModel)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return error_app.ErrDocumentNotFound
+	}
 
 	return result.Error
 }

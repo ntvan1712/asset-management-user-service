@@ -7,10 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const (
-	UserIDParamName = "user_id"
-)
-
 func Setup(app *fiber.App) {
 
 	userController := controller.NewUserController()

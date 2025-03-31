@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	"user_service/infras"
 	"user_service/module/user/domain/entity"
 )
 
@@ -38,5 +39,5 @@ func UserActivityModelsToEntities(activities []UserActivity) []entity.UserActivi
 }
 
 func (UserActivity) TableName() string {
-	return "user_activities"
+	return infras.TableUserActivities
 }

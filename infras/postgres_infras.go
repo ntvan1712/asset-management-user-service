@@ -10,8 +10,16 @@ import (
 )
 
 const (
-	TableUsers = "users"
-	TablePermissions = "permissions"
+	TableUsers          = "users"
+	TablePermissions    = "permissions"
+	TableDepartments    = "departments"
+	TablePositions      = "positions"
+	TableRoles          = "roles"
+	TableUserActivities = "user_activities" 
+	TableAssetTypes     = "asset_types"
+	TableAssetQualities = "asset_qualities"
+	TableCurrencies     = "currencies"
+	TableLocations      = "locations"
 )
 
 var dbInstance *gorm.DB

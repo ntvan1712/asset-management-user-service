@@ -84,7 +84,7 @@ func (ac *UserController) GetManagerActivitiesHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse("Manager Id phải là số nguyên"))
 	}
 
-	paginateQuery := new(entity.PaginateQueryEntity)
+	paginateQuery := new(entity.PaginateQuery)
 	if err := c.QueryParser(paginateQuery); err != nil {
 		logger.Error("UserController", "GetManagerActivitiesHandler QueryParserErr", err)
 		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse(err.Error()))
@@ -107,22 +107,21 @@ func (ac *UserController) GetManagerActivitiesHandler(c *fiber.Ctx) error {
 }
 
 func (ac *UserController) UpdateManagerPermissionsHandler(c *fiber.Ctx) error {
+
+	managerID, err := c.ParamsInt("manager_id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse("Manager Id phải là số nguyên"))
+	}
+
 	type updatePermissionsRequest struct {
 		PermissionIDs []int `json:"permission_ids" validate:"required,min=1,dive,oneof=1 2 3 4"`
 	}
 	var request *updatePermissionsRequest
 	if err := c.BodyParser(&request); err != nil {
-		logger.Error("UserController", "UpdateManagerHandler", err)
 		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse(err.Error()))
 	}
 	if err := validator_app.ValidateStruct(request); err != nil {
-		logger.Error("UserController", "UpdateManagerHandler", err)
 		return c.Status(fiber.StatusBadRequest).JSON(err)
-	}
-	managerID, err := c.ParamsInt("manager_id")
-	if err != nil {
-		logger.Error("UserController", "UpdateManagerHandler", err)
-		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse("Manager Id phải là số nguyên"))
 	}
 
 	manager, err := ac.userUsecase.UpdateManagerPermissions(c.Context(), managerID, request.PermissionIDs)
