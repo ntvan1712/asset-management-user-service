@@ -41,6 +41,9 @@ func (ac *AuthController) LoginHandler(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
+func (ac *AuthController) LogoutHandler(c *fiber.Ctx) error {
+	return c.SendString("Logout success")
+}
 func NewAuthController() *AuthController {
 	return &AuthController{
 		authUsecase: usecase.NewAuthUsecase(),
