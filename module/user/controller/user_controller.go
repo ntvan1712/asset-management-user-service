@@ -59,7 +59,7 @@ func (ac *UserController) GetAllManagersHandler(c *fiber.Ctx) error {
 func (ac *UserController) DeleteManagerHandler(c *fiber.Ctx) error {
 	managerID, err := c.ParamsInt("manager_id")
 	if err != nil {
-		logger.Error("UserController", "UpdateManagerHandler", err)
+		logger.Error("UserController", "DeleteManagerHandler", err)
 		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse("Manager Id phải là số nguyên"))
 	}
 
@@ -75,6 +75,27 @@ func (ac *UserController) DeleteManagerHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(error_app.InternalServerErrorResponse(err.Error()))
 	}
 	return c.SendString("Delete success")
+}
+
+func (ac *UserController) GetUserByIDHandler(c *fiber.Ctx) error {
+	userID, err := c.ParamsInt("user_id")
+	if err != nil {
+		logger.Error("UserController", "GetUserByIDHandler", err)
+		return c.Status(fiber.StatusBadRequest).JSON(error_app.BadRequestErrorResponse("User Id phải là số nguyên"))
+	}
+
+	user, err := ac.userUsecase.GetUserByID(c.Context(), userID)
+	if err != nil {
+		if err == error_app.ErrDocumentNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(error_app.NotFoundErrorResponse("Không tìm thấy người dùng"))
+		}
+		if err == error_app.ErrPermissionDenied {
+			return c.Status(fiber.StatusForbidden).JSON(error_app.NotFoundErrorResponse("Không có quyền"))
+
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(error_app.InternalServerErrorResponse(err.Error()))
+	}
+	return c.JSON(user)
 }
 
 func (ac *UserController) GetManagerActivitiesHandler(c *fiber.Ctx) error {

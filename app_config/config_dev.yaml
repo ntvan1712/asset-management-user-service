@@ -23,7 +23,7 @@ rabbitmq:
   CompletedLabelTaskQueue: "completed_label_task_queue"
 
 minio:
-  Endpoint: "http://192.168.1.4:9000"
+  Endpoint: "http://192.168.1.8:9000"
   AccessKeyID: "GmrlC2mP8bGnpvYZjnym"
   SecretAccessKey: "spYleTko6ZOm5F7AuWX0gqEEtnnzDWK38EWVmI27"
   AssetBucket: "asset-management"

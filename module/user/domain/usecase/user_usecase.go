@@ -12,6 +12,7 @@ type UserUsecase interface {
 	AddManager(context context.Context, createManagerRequest entity.CreateManagerRequestEntity) (*entity.UserEntity, error)
 	DeleteManager(context context.Context, managerID int) error
 	UpdateManagerPermissions(context context.Context, managerID int, permissionIDs []int) (*entity.UserEntity, error)
+	GetUserByID(context context.Context, id int) (*entity.UserEntity, error)
 
 	SearchEmployeesByNameOrCode(context context.Context, query string, page int, limit int) ([]entity.EmployeeDetailEntity, error)
 

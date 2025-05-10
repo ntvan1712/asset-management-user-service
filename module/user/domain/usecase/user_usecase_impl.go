@@ -12,6 +12,11 @@ type userUsecaseImpl struct {
 	userRepo repository.UserRepository
 }
 
+// GetUserByID implements UserUsecase.
+func (d *userUsecaseImpl) GetUserByID(context context.Context, id int) (*entity.UserEntity, error) {
+	return d.userRepo.FindByID(context, id)
+}
+
 // GetManagerActivities implements UserUsecase.
 func (d *userUsecaseImpl) GetManagerActivities(context context.Context, userID int, page int, limit int) ([]entity.UserActivityEntity, error) {
 	return d.userRepo.FindActivitiesByUserID(context, userID, page, limit)
